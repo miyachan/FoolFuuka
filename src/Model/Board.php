@@ -1039,7 +1039,7 @@ class Board extends Model
         }
 
         if ($this->radix->archive) {
-            $timestamp = new \DateTime(date('Y-m-d H:i:s', $last_modified), new \DateTimeZone('America/New_York'));
+            $timestamp = new \DateTime(date('Y-m-d H:i:s', $last_modified), new \DateTimeZone('UTC'));
             $timestamp->setTimezone(new \DateTimeZone('UTC'));
             $last_modified = strtotime($timestamp->format('Y-m-d H:i:s'));
         }

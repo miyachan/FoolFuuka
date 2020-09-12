@@ -149,8 +149,9 @@ class Radix extends Model
      */
     public function getPrefix()
     {
+        $fallback = $this->getValue('external_database') ? "" : null;
         // if the value really doesn't exist in the db
-        if ($this->preferences->get('foolfuuka.boards.prefix', null, true) === null) {
+        if ($this->preferences->get('foolfuuka.boards.prefix', $fallback, true) === null) {
             return $this->dc->getPrefix() . 'board_';
         }
 

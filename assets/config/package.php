@@ -62,7 +62,7 @@ return [
         ],
 
         'sphinx' => [
-            'listen' => '127.0.0.1:9306',
+            'listen' => 'pgsql://postgres@127.0.0.1:5432/torako',
             'listen_mysql' => '127.0.0.1:3306',
             'dir' => '/usr/local/sphinx/var',
             'min_word' => 3,

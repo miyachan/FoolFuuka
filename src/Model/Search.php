@@ -2,6 +2,9 @@
 
 namespace Foolz\FoolFuuka\Model;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Connection;
 use Foolz\FoolFrame\Model\Logger;
 use Foolz\FoolFrame\Model\Preferences;
 use Foolz\Inet\Inet;
@@ -335,13 +338,19 @@ class Search extends Board
             $this->total_found = $cache['found'];
             unset($cache);
         } catch (\OutOfBoundsException $e) {
-            $sphinx = explode(':', $this->preferences->get('foolfuuka.sphinx.listen'));
-            $conn = new SphinxConnnection();
-            $conn->setParams([
-                'host' => $sphinx[0],
-                'port' => $sphinx[1],
-                'options' => [MYSQLI_OPT_CONNECT_TIMEOUT => 5]
-            ]);
+            // $sphinx = explode(':', $this->preferences->get('foolfuuka.sphinx.listen'));
+            // $conn = new SphinxConnnection();
+            // $conn->setParams([
+            //     'host' => $sphinx[0],
+            //     'port' => $sphinx[1],
+            //     'options' => [MYSQLI_OPT_CONNECT_TIMEOUT => 5]
+            //]);
+            $config = new Configuration();
+            // $config->setSQLLogger(new \Foolz\FoolFrame\Model\DoctrineLogger($context));
+            $data = [
+                'url' => $this->preferences->get('foolfuuka.sphinx.listen')
+            ];
+            $conn = DriverManager::getConnection($data, $config);
 
             $indices = [];
             foreach ($boards as $radix) {
@@ -354,18 +363,22 @@ class Search extends Board
                 $indices[] = $radix->shortname . '_delta';
             }
 
-            // establish connection
-            try {
-                $query = (new SphinxQL($conn))->select('id', 'board', 'tnum')->from($indices)
-                    ->setFullEscapeChars(['\\', '(', ')', '|', '-', '!', '@', '%', '~', '"', '&', '/', '^', '$', '='])
-                    ->setHalfEscapeChars(['\\', '(', ')', '!', '@', '%', '~', '&', '/', '^', '$', '=']);
-            } catch (\Foolz\SphinxQL\Exception\ConnectionException $e) {
-                throw new SearchSphinxOfflineException($this->preferences->get('foolfuuka.sphinx.custom_message', _i('The search backend is currently unavailable.')));
-            }
+            $query = $conn->createQueryBuilder()
+                    ->select('board', 'thread_no', 'post_no', 'COUNT(*) OVER() AS total_results')
+                    ->from('posts');
+
+            $btx = function($value) {
+                return $value->shortname;
+            };
+            $board_ids = array_map($btx, $boards);
+            $query->where('board IN (:boards)')
+                ->setParameter('boards', $board_ids, Connection::PARAM_STR_ARRAY);
 
             // process user input
             if ($input['subject'] !== null) {
-                $query->match('title', $input['subject']);
+                // $query->match('title', $input['subject']);
+                $query->andWhere('subject @@ websearch_to_tsquery(:subject)');
+                $query->setParameter('subject', $input['subject']);
             }
 
             if ($input['text'] !== null) {
@@ -373,90 +386,112 @@ class Search extends Board
                     return [];
                 }
 
-                $query->match('comment', $input['text'], true);
+                // $query->match('comment', $input['text'], true);
+                $query->andWhere('comment @@ websearch_to_tsquery(:text)');
+                $query->setParameter('text', $input['text']);
             }
 
             if ($input['tnum'] !== null) {
-                $query->where('tnum', (int)$input['tnum']);
+                // $query->where('tnum', (int)$input['tnum']);
+                $query->andWhere('thread_no = :tnum');
+                $query->setParameter('tnum', $input['tnum']);
             }
 
             if ($input['username'] !== null) {
-                $query->match('name', $input['username']);
+                // $query->match('name', $input['username']);
+                $query->andWhere('username @@ websearch_to_tsquery(:username)');
+                $query->setParameter('username', $input['username']);
             }
 
             if ($input['tripcode'] !== null) {
-                $query->match('trip', '"' . $input['tripcode'] . '"');
+                // $query->match('trip', '"' . $input['tripcode'] . '"');
+                $query->andWhere('tripcode @@ websearch_to_tsquery(:tripcode)');
+                $query->setParameter('tripcode', $input['tripcode']);
             }
 
             if ($input['email'] !== null) {
-                $query->match('email', $input['email']);
+                // $query->match('email', $input['email']);
+                $query->andWhere('email @@ websearch_to_tsquery(:email)');
+                $query->setParameter('email', $input['email']);
             }
 
             if ($input['since4pass'] !== null) {
-                $query->where('exif.since4pass', $input['since4pass']);
+                $query->andWhere('since4_pass = :since4pass');
+                $query->setParameter('since4pass', $input['since4pass']);
             }
 
             if ($input['capcode'] !== null) {
                 switch ($input['capcode']) {
                     case 'user':
-                        $query->where('cap', ord('N'));
+                        $query->andWhere('cap = '.ord('N'));
                         break;
                     case 'mod':
-                        $query->where('cap', ord('M'));
+                        $query->andWhere('cap = '.ord('M'));
                         break;
                     case 'dev':
-                        $query->where('cap', ord('D'));
+                        $query->andWhere('cap = '.ord('D'));
                         break;
                     case 'admin':
-                        $query->where('cap', ord('A'));
+                        $query->andWhere('cap = '.ord('A'));
                         break;
                     case 'ver':
-                        $query->where('cap', ord('V'));
+                        $query->andWhere('cap = '.ord('V'));
                         break;
                     case 'founder':
-                        $query->where('cap', ord('F'));
+                        $query->andWhere('cap = '.ord('F'));
                         break;
                     case 'manager':
-                        $query->where('cap', ord('G'));
+                        $query->andWhere('cap = '.ord('G'));
                         break;
                 }
             }
 
             if ($input['uid'] !== null) {
-                $query->match('pid', $input['uid']);
+                //$query->match('pid', $input['uid']);
+                $query->andWhere('unique_id = :uid');
+                $query->setParameter('uid', $input['uid']);
             }
 
             if ($input['country'] !== null) {
-                $query->match('country', $input['country'], true);
+                // $query->match('country', $input['country'], true);
+                $query->andWhere('country = :country');
+                $query->setParameter('country', $input['country']);
             }
 
             if ($this->getAuth()->hasAccess('comment.see_ip') && $input['poster_ip'] !== null) {
-                $query->where('pip', (int)Inet::ptod($input['poster_ip']));
+                throw new SearchInvalidException(_i('Search by IP address is not supported.'));
+                //$query->where('pip', (int)Inet::ptod($input['poster_ip']));
             }
 
             if ($input['filename'] !== null) {
-                $query->match('media_filename', $input['filename']);
+                // $query->match('media_filename', $input['filename']);
+                $query->andWhere('filename @@ websearch_to_tsquery(:filename)');
+                $query->setParameter('filename', str_replace(".", " ", $input['filename']));
             }
 
             if ($input['image'] !== null) {
-                $query->match('media_hash', '"' . $input['image'] . '"');
+                // $query->match('media_hash', '"' . $input['image'] . '"');
+                $query->andWhere('image_hash = :media_hash');
+                $query->setParameter('media_hash', $input['media_hash']);
             }
 
             if ($input['width'] !== null) {
-                $query->where('media_w', (int)$input['width']);
+                $query->andWhere('image_width = :width');
+                $query->setParameter('width', (int)$input['width']);
             }
 
             if ($input['height'] !== null) {
-                $query->where('media_h', (int)$input['height']);
+                $query->andWhere('image_height = :height');
+                $query->setParameter('height', (int)$input['height']);
             }
 
             if ($input['deleted'] !== null) {
                 switch ($input['deleted']) {
                     case 'deleted':
-                        $query->where('is_deleted', 1);
+                        $query->andWhere('deleted = TRUE');
                         break;
                     case 'not-deleted':
-                        $query->where('is_deleted', 0);
+                        $query->andWhere('deleted = FALSE');
                         break;
                 }
             }
@@ -464,29 +499,30 @@ class Search extends Board
             if ($input['ghost'] !== null) {
                 switch ($input['ghost']) {
                     case 'only':
-                        $query->where('is_internal', 1);
+                        $query->andWhere('ghost = TRUE');
                         break;
                     case 'none':
-                        $query->where('is_internal', 0);
+                        $query->andWhere('ghost = FALSE');
                         break;
                 }
             }
 
+
             if ($input['filter'] !== null) {
                 switch ($input['filter']) {
                     case 'image':
-                        $query->where('has_image', 0);
+                        $query->andWhere('image_width = 0');
                         break;
                     case 'text':
-                        $query->where('has_image', 1);
+                        $query->andWhere('image_width != 0');
                         break;
                     case 'spoiler':
-                        $query->where('is_spoiler', 1);
-                        $query->where('has_image', 1);
+                        $query->andWhere('image_width != 0');
+                        $query->andWhere('spoiler = TRUE');
                         break;
                     case 'not-spoiler':
-                        $query->where('is_spoiler', 0);
-                        $query->where('has_image', 1);
+                        $query->andWhere('image_width != 0');
+                        $query->andWhere('spoiler = FALSE');
                         break;
                 }
             }
@@ -494,49 +530,52 @@ class Search extends Board
             if ($input['type'] !== null) {
                 switch ($input['type']) {
                     case 'sticky':
-                        $query->where('is_sticky', 1);
+                        $query->andWhere('sticky = TRUE');
                         break;
                     case 'op':
-                        $query->where('is_op', 1);
+                        $query->andWhere('op = TRUE');
                         break;
                     case 'posts':
-                        $query->where('is_op', 0);
+                        $query->andWhere('op = FALSE');
                         break;
                 }
             }
 
             if ($input['start'] !== null) {
-                $query->where('timestamp', '>=', intval(strtotime($input['start'])));
+                $query->andWhere('ts >= TO_TIMESTAMP(:start)');
+                $query->setParameter('start', floatval(strtotime($input['start'])) );
             }
 
             if ($input['end'] !== null) {
-                $query->where('timestamp', '<=', intval(strtotime($input['end'])));
+                $query->andWhere('ts <= TO_TIMESTAMP(:end)');
+                $query->setParameter('end', floatval(strtotime($input['end'])));
             }
 
-            if ($input['results'] !== null && $input['results'] == 'thread') {
-                $query->groupBy('tnum');
-                $query->withinGroupOrderBy('is_op', 'desc');
-            }
+            // if ($input['results'] !== null && $input['results'] == 'thread') {
+            //     $query->groupBy('tnum');
+            //    $query->withinGroupOrderBy('is_op', 'desc');
+            //}
 
             if ($input['order'] !== null && $input['order'] == 'asc') {
-                $query->orderBy('timestamp', 'ASC');
+                $query->orderBy('ts', 'ASC');
             } else {
-                $query->orderBy('timestamp', 'DESC');
+                $query->orderBy('ts', 'DESC');
             }
 
             $max_matches = $this->preferences->get('foolfuuka.sphinx.max_matches', 5000);
 
             // set sphinx options
-            $query->limit($limit)
-                ->offset((($page * $limit) - $limit) >= $max_matches ? ($max_matches - 1) : ($page * $limit) - $limit)
-                ->option('max_matches', (int)$max_matches)
-                ->option('reverse_scan', ($input['order'] === 'asc') ? 0 : 1);
+            $query->setMaxResults($limit)
+                ->setFirstResult((($page * $limit) - $limit) >= $max_matches ? ($max_matches - 1) : ($page * $limit) - $limit);
+                // ->option('max_matches', (int)$max_matches)
+                // ->option('reverse_scan', ($input['order'] === 'asc') ? 0 : 1);
 
             // submit query
+             //echo($query->getSql());
             try {
-                $this->profiler->log('Start: SphinxQL: ' . $query->compile()->getCompiled());
-                $search = $query->execute();
-                $this->profiler->log('Stop: SphinxQL');
+                $this->profiler->log('Start: SearchQL: ' . $query->compile()->getCompiled());
+                $search = $query->execute()->fetchAll();
+                $this->profiler->log('Stop: SearchQL');
             } catch (\Foolz\SphinxQL\Exception\DatabaseException $e) {
                 $this->logger->error('Search Error: ' . $e->getMessage());
                 throw new SearchInvalidException(_i('The search backend returned an error.'));
@@ -553,27 +592,33 @@ class Search extends Board
                 throw new SearchEmptyResultException(_i('No results found.'));
             }
 
-            $sphinx_meta = Helper::pairsToAssoc((new Helper($conn))->showMeta()->execute());
-            $this->total_count = $sphinx_meta['total'];
-            $this->total_found = $sphinx_meta['total_found'];
+            // $sphinx_meta = Helper::pairsToAssoc((new Helper($conn))->showMeta()->execute());
+            $this->total_count = 1; //$sphinx_meta['total'];
+            $this->total_found = 1; //$sphinx_meta['total_found'];
 
 
             foreach ($search as $doc => $result) {
-                $board = $this->radix_coll->getById($result['board']);
+                $this->total_count = $result['total_results'];
+                $this->total_found = $result['total_results'];
+
+                $board = $this->radix_coll->getByShortname($result['board']);
                 if ($board->getValue('external_database')) {
                     $newdc = new BoardConnection($this->getContext(), $board);
                 } else {
                     $newdc = $this->dc;
                 }
 
+
                 if ($input['results'] !== null && $input['results'] == 'thread') {
-                    $post = 'num = ' . $this->dc->getConnection()->quote($result['tnum']) . ' AND subnum = 0';
+                    $post = 'num = ' . $this->dc->getConnection()->quote($result['thread_no']) . ' AND subnum = 0';
                 } else {
-                    $post = 'doc_id = ' . $this->dc->getConnection()->quote($result['id']);
+                    $post = 'num = ' . $this->dc->getConnection()->quote($result['post_no']) . ' AND subnum = 0';
                 }
 
+
+
                 $sql = $newdc->qb()
-                    ->select('*, ' . $result['board'] . ' AS board_id')
+                    ->select('*, ' . $board->id . ' AS board_id')
                     ->from($board->getTable(), 'r')
                     ->leftJoin('r', $board->getTable('_images'), 'mg', 'mg.media_id = r.media_id')
                     ->where($post)

@@ -304,40 +304,37 @@ class Boards extends \Foolz\FoolFrame\Controller\Admin
 
         $form['foolfuuka.sphinx.global'] = [
             'type' => 'checkbox',
-            'label' => 'Global SphinxSearch',
+            'label' => 'Global Postgres Search',
             'placeholder' => 'FoolFuuka',
             'preferences' => true,
-            'help' => _i('Activate Sphinx globally (enables crossboard search)')
+            'help' => _i('Activate PG Search globally (enables crossboard search)')
         ];
 
         $form['foolfuuka.sphinx.listen'] = [
             'type' => 'input',
-            'label' => 'Listen (Sphinx)',
+            'label' => 'Database URL',
             'preferences' => true,
-            'help' => _i('Set the address and port to your Sphinx instance.'),
-            'class' => 'span2',
-            'validation' => [new Trim(), new Assert\Length(['max' => 48])],
+            'help' => _i('Set this to the database url of your postgres instance. Must be in form pgsql://user:pass@host/db_name'),
+            'class' => 'span6',
+            'validation' => [new Trim(), new Assert\Length(['max' => 255])],
             'validation_func' => function($input, $form) {
-                    if (strpos($input['foolfuuka.sphinx.listen'], ':') === false) {
+                    $parsed = parse_url($input['foolfuuka.sphinx.listen']);
+                    if (!$parsed) {
                         return [
-                            'error_code' => 'MISSING_COLON',
-                            'error' => _i('The Sphinx listening address and port aren\'t formatted correctly.')
+                            'error_code' => 'INVALID_URL',
+                            'error' => _i('The Database URL is invalid.')
                         ];
                     }
-
-                    $sphinx_ip_port = explode(':', $input['foolfuuka.sphinx.listen']);
-
-                    if (count($sphinx_ip_port) != 2) {
+                    if (!in_array($parsed["scheme"], array('pgsql', 'postgres', 'postgresql', 'pdo_pgsql'))) {
                         return [
-                            'error_code' => 'WRONG_COLON_NUMBER',
-                            'error' => _i('The Sphinx listening address and port aren\'t formatted correctly.')
+                            'error_code' => 'INVALID_SCHEME',
+                            'error' => _i('The database scheme must be pgsql://.')
                         ];
                     }
-
-                    if (intval($sphinx_ip_port[1]) <= 0) {
+                    if (!$parsed["path"]) {
                         return [
-                            'error_code' => 'PORT_NOT_A_NUMBER',
-                            'error' => _i('The port specified isn\'t a valid number.')
+                            'error_code' => 'INVALID_DB_NAME',
+                            'error' => _i('The database name in the URL is invalid.')
                         ];
                     }
                     /*
@@ -354,91 +351,6 @@ class Boards extends \Foolz\FoolFrame\Controller\Admin
                     */
                     return ['success' => true];
                 }
-        ];
-
-        $form['foolfuuka.sphinx.listen_mysql'] = [
-            'type' => 'input',
-            'label' => 'Listen (MySQL)',
-            'preferences' => true,
-            'validation' => [new Trim(), new Assert\Length(['max' => 48])],
-            'help' => _i('Set the address and port to your MySQL instance.'),
-            'class' => 'span2'
-        ];
-
-        $form['foolfuuka.sphinx.connection_flags'] = [
-            'type' => 'input',
-            'label' => 'Connection Flags (MySQL)',
-            'placeholder' => 0,
-            'preferences' => true,
-            'validation' => [new Trim()],
-            'help' => _i('Set the MySQL client connection flags to enable compression, SSL, or secure connection.'),
-            'class' => 'span2'
-        ];
-
-        $form['foolfuuka.sphinx.dir'] = [
-            'type' => 'input',
-            'label' => 'Working Directory',
-            'preferences' => true,
-            'help' => _i('Set the working directory to your Sphinx working directory.'),
-            'class' => 'span3',
-            'validation' => [new Trim()],
-            'validation_func' => function($input, $form) {
-                if (!file_exists($input['foolfuuka.sphinx.dir'])) {
-                    return [
-                        'warning_code' => 'SPHINX_WORKING_DIR_NOT_FOUND',
-                        'warning' => _i('Couldn\'t find the Sphinx working directory.')
-                    ];
-                }
-
-                return ['success' => true];
-            }
-        ];
-
-        $form['foolfuuka.sphinx.min_word_len'] = [
-            'type' => 'input',
-            'label' => 'Minimum Word Length',
-            'preferences' => true,
-            'help' => _i('Set the minimum word length indexed by Sphinx.'),
-            'class' => 'span1',
-            'validation' => [new Trim()]
-        ];
-
-        $form['foolfuuka.sphinx.mem_limit'] = [
-            'type' => 'input',
-            'label' => 'Memory Limit',
-            'preferences' => true,
-            'help' => _i('Set the memory limit for the Sphinx indexer.'),
-            'class' => 'span1'
-        ];
-
-        $form['foolfuuka.sphinx.max_children'] = [
-            'type' => 'input',
-            'label' => 'Max Children',
-            'placeholder' => 0,
-            'validation' => [new Trim()],
-            'preferences' => true,
-            'help' => _i('Set the maximum number of children to fork for searchd.'),
-            'class' => 'span1'
-        ];
-
-        $form['foolfuuka.sphinx.max_matches'] = [
-            'type' => 'input',
-            'label' => 'Max Matches',
-            'placeholder' => 5000,
-            'validation' => [new Trim()],
-            'preferences' => true,
-            'help' => _i('Set the maximum amount of matches the search daemon keeps in RAM for each index and results returned to the client.'),
-            'class' => 'span1'
-        ];
-
-        $form['foolfuuka.sphinx.distributed'] = [
-            'type' => 'input',
-            'label' => 'Number of Distributed Indexes',
-            'placeholder' => 0,
-            'validation' => [new Trim()],
-            'preferences' => true,
-            'help' => _i('Set the total number of distributed indexes to be created with indexer and used for searchd.'),
-            'class' => 'span1'
         ];
 
         $form['foolfuuka.sphinx.custom_message'] = [

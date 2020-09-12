@@ -1,20 +1,17 @@
 {
     "name": "foolz/foolfuuka",
     "description": "The FoolFuuka Imageboard",
-    "authors": [
-        {
-            "name": "Foolz",
-            "email": "support@foolz.us"
-        }
-    ],
-    "repositories": [
-        {
+    "authors": [{
+        "name": "Foolz",
+        "email": "support@foolz.us"
+    }],
+    "repositories": [{
             "type": "vcs",
             "url": "https://github.com/mathjax/MathJax"
         },
         {
             "type": "git",
-            "url": "https://github.com/pleebe/foolframe"
+            "url": "https://github.com/miyachan/foolframe"
         },
         {
             "type": "git",
@@ -78,7 +75,9 @@
         ]
     },
     "autoload": {
-        "psr-4": {"Foolz\\FoolFuuka\\": "src/"}
+        "psr-4": {
+            "Foolz\\FoolFuuka\\": "src/"
+        }
     },
     "extra": {
         "foolfuuka-app-dir": "app",

@@ -2,3 +2,8 @@ vendor/
 .idea
 .DS_Store
 ._.DS_Store
+public/foolfuuka
+public/foolframe
+composer.lock
+app/foolz/foolframe/config/
+app/foolz/foolfuuka/plugins/foolz/

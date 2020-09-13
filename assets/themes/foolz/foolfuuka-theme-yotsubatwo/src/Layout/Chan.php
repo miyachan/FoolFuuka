@@ -301,7 +301,7 @@ class Chan extends \Foolz\FoolFuuka\View\View
     <footer id="footer">
         <a href="https://github.com/FoolCode/FoolFuuka"><?= $this->getConfig()->get('foolz/foolfuuka', 'package', 'main.name') ?>
             Imageboard <?= $this->getConfig()->get('foolz/foolfuuka', 'package', 'main.version') ?></a>
-        - <a href="http://github.com/eksopl/asagi" target="_blank">Asagi Fetcher</a>
+        - <a href="https://github.com/miyachan/torako" target="_blank">Torako Fetcher</a>
 
         <div class="pull-right">
             <div class="btn-group dropup pull-right">

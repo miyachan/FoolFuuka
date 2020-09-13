@@ -208,6 +208,16 @@ class Radix extends Model
         $config = $this->config->get('foolz/foolframe', 'db', 'default');
         $config['dbname'] = $this->preferences->get('foolfuuka.boards.db') ?: $config['dbname'];
         $config['prefix'] = $this->preferences->get("foolfuuka.boards.prefix");
+
+        if ($this->getValue('external_database')) {
+            $config['dbname'] = $this->getValue('db_name');
+            $config['user'] = $this->getValue('db_username');
+            $config['password'] = $this->getValue('db_password');
+            $config['host'] = $this->getValue('db_hostname');
+            $config['port'] = $this->getValue('db_port');
+            $config['driver'] = $this->getValue('db_driver');
+        }
+
         $conn = new DoctrineConnection($this->getContext(), $config);
 
         $charset = 'utf8mb4';

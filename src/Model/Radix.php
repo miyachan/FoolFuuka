@@ -149,9 +149,12 @@ class Radix extends Model
      */
     public function getPrefix()
     {
-        $fallback = $this->getValue('external_database') ? "" : null;
+        if ($this->getValue('external_database')) {
+            return $this->getValue('db_prefix');
+        }
+
         // if the value really doesn't exist in the db
-        if ($this->preferences->get('foolfuuka.boards.prefix', $fallback, true) === null) {
+        if ($this->preferences->get('foolfuuka.boards.prefix', null, true) === null) {
             return $this->dc->getPrefix() . 'board_';
         }
 
@@ -167,6 +170,11 @@ class Radix extends Model
      */
     public function getTable($suffix = '')
     {
+        if ($this->getValue('external_database')) {
+            return $this->dc->getConnection()->quoteIdentifier($this->getValue('db_name'))
+            . '.' . $this->dc->getConnection()->quoteIdentifier($this->getPrefix() . $this->shortname . $suffix);
+        }
+
         if ($this->preferences->get('foolfuuka.boards.db')) {
             return $this->dc->getConnection()->quoteIdentifier($this->preferences->get('foolfuuka.boards.db'))
             . '.' . $this->dc->getConnection()->quoteIdentifier($this->getPrefix() . $this->shortname . $suffix);

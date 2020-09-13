@@ -1,23 +1,21 @@
-var bindFunctions = function()
-{
+var bindFunctions = function () {
 	// the following block of code deals with drag and drop of images for MD5 hashing
 	var search_dropdown = jQuery('#search_form_image');
 
-	if (isEventSupported('dragstart') && isEventSupported('drop') && !!window.FileReader)
-	{
-		search_dropdown.on('dragover', function(e) {
+	if (isEventSupported('dragstart') && isEventSupported('drop') && !!window.FileReader) {
+		search_dropdown.on('dragover', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			e.originalEvent.dataTransfer.dropEffect = 'copy';
 		});
 
-		search_dropdown.on('dragenter', function(e) {
+		search_dropdown.on('dragenter', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 		});
 
-		search_dropdown.on('drop', function(event) {
-			if (event.originalEvent.dataTransfer){
+		search_dropdown.on('drop', function (event) {
+			if (event.originalEvent.dataTransfer) {
 				if (event.originalEvent.dataTransfer.files.length) {
 					event.preventDefault();
 					event.stopPropagation();
@@ -32,28 +30,25 @@ var bindFunctions = function()
 
 	var clickCallbacks = {
 
-		checkAll: function(el, post, event)
-		{
+		checkAll: function (el, post, event) {
 			var checkboxes = el.parent().parent().find('input[type=checkbox]');
-			checkboxes.each(function(id, element) {
+			checkboxes.each(function (id, element) {
 				jQuery(element).attr('checked', 'checked');
 			});
 			el.parent().find('.uncheck').show();
 			el.hide();
 		},
 
-		uncheckAll: function(el, post, event)
-		{
+		uncheckAll: function (el, post, event) {
 			var checkboxes = el.parent().parent().find('input[type=checkbox]');
-			checkboxes.each(function(id, element) {
+			checkboxes.each(function (id, element) {
 				jQuery(element).attr('checked', false);
 			});
 			el.parent().find('.check').show();
 			el.hide();
 		},
 
-		hideThread: function(el, post, event)
-		{
+		hideThread: function (el, post, event) {
 			var hiddenBoardThreads = JSON.parse(localStorage.getItem("hiddenBoardThreads/" + el.data("board"))) || {};
 			var num = el.data("doc-id");
 
@@ -64,8 +59,7 @@ var bindFunctions = function()
 			jQuery(".stub_doc_id_" + num).show();
 		},
 
-		showThread: function(el, post, event)
-		{
+		showThread: function (el, post, event) {
 			var hiddenBoardThreads = JSON.parse(localStorage.getItem("hiddenBoardThreads/" + el.data("board"))) || {};
 			var num = el.data("doc-id");
 
@@ -76,8 +70,7 @@ var bindFunctions = function()
 			jQuery(".stub_doc_id_" + num).hide();
 		},
 
-		hidePost: function(el, post, event)
-		{
+		hidePost: function (el, post, event) {
 			var hiddenBoardPosts = JSON.parse(localStorage.getItem("hiddenBoardPosts/" + el.data("board"))) || {};
 			var num = el.data("doc-id");
 
@@ -88,8 +81,7 @@ var bindFunctions = function()
 			jQuery(".stub_doc_id_" + num).show();
 		},
 
-		showPost: function(el, post, event)
-		{
+		showPost: function (el, post, event) {
 			var hiddenBoardPosts = JSON.parse(localStorage.getItem("hiddenBoardPosts/" + el.data("board"))) || {};
 			var num = el.data("doc-id");
 
@@ -100,33 +92,27 @@ var bindFunctions = function()
 			jQuery(".stub_doc_id_" + num).hide();
 		},
 
-		highlight: function(el, post, event)
-		{
-			if (post)
-			{
+		highlight: function (el, post, event) {
+			if (post) {
 				toggleHighlight(post);
 			}
 		},
 
-		quote: function(el, post, event)
-		{
+		quote: function (el, post, event) {
 			jQuery("#reply_chennodiscursus").insertAtCaret(">>" + post + "\n");
 		},
 
-		comment: function(el, post, event)
-		{
+		comment: function (el, post, event) {
 			var file_el = jQuery("#file_image");
 			var progress_pos = 0;
 			var progress_el = jQuery("#reply .progress .bar");
 
 			// if there's an image and the browser doesn't support FormData, use a normal upload process
-			if (file_el.val() && window.FormData === undefined)
-			{
+			if (file_el.val() && window.FormData === undefined) {
 				return true;
 			}
 
-			if (is_posting)
-			{
+			if (is_posting) {
 				return false;
 			}
 
@@ -134,14 +120,22 @@ var bindFunctions = function()
 
 			var originalText = el.attr('value');
 			var el_parent = el.parent();
-			el.attr({'value': backend_vars.gettext['submit_state']});
-			el_parent.find('[name=reply_gattai]').attr({disabled:'disabled'});
-			el_parent.find('[name=reply_gattai_spoilered]').attr({disabled:'disabled'});
+			el.attr({
+				'value': backend_vars.gettext['submit_state']
+			});
+			el_parent.find('[name=reply_gattai]').attr({
+				disabled: 'disabled'
+			});
+			el_parent.find('[name=reply_gattai_spoilered]').attr({
+				disabled: 'disabled'
+			});
 			//el.parent().find('[name=reply_gattai], [name=reply_gattai_spoilered]')
 
 			// to make sure nobody gets pissed off with a blocked button
-			var buttonTimeout = setTimeout(function(){
-				el.attr({'value': originalText});
+			var buttonTimeout = setTimeout(function () {
+				el.attr({
+					'value': originalText
+				});
 				el.removeAttr('disabled');
 			}, 10000);
 
@@ -162,10 +156,10 @@ var bindFunctions = function()
 				theme: backend_vars.selected_theme
 			};
 
-			if(typeof jQuery("#recaptcha_challenge_field").val() !== 'undefined' && typeof jQuery("#recaptcha_response_field").val() !== 'undefined') {
+			if (typeof jQuery("#recaptcha_challenge_field").val() !== 'undefined' && typeof jQuery("#recaptcha_response_field").val() !== 'undefined') {
 				data_obj['recaptcha_challenge_field'] = jQuery("#recaptcha_challenge_field").val();
 				data_obj['recaptcha_response_field'] = jQuery("#recaptcha_response_field").val();
-			} else if(typeof jQuery("#g-recaptcha-response").val() !== 'undefined') {
+			} else if (typeof jQuery("#g-recaptcha-response").val() !== 'undefined') {
 				data_obj['recaptcha2_response_field'] = jQuery("#g-recaptcha-response").val();
 			}
 
@@ -173,28 +167,28 @@ var bindFunctions = function()
 			data_obj[el.attr('name')] = true;
 
 			// support for checkbox spoiler
-			if (el_parent.find('[name=reply_spoiler]:checked').length)
-			{
+			if (el_parent.find('[name=reply_spoiler]:checked').length) {
 				data_obj.reply_spoiler = true;
 			}
 
 			data_obj[backend_vars.csrf_token_key] = getCookie(backend_vars.csrf_token_key);
 
-			progress_el.parent().animate({'opacity': '1.0'}, 300);
+			progress_el.parent().animate({
+				'opacity': '1.0'
+			}, 300);
 
 			var ajax_object = {
-				url: backend_vars.site_url + backend_vars.board_shortname + '/submit/' ,
+				url: backend_vars.site_url + backend_vars.board_shortname + '/submit/',
 				dataType: 'json',
 				type: 'POST',
 				data: data_obj,
 				cache: false,
-				xhr: function() {
+				xhr: function () {
 					var xhr = jQuery.ajaxSettings.xhr();
-					 if (xhr instanceof window.XMLHttpRequest) {
-						xhr.upload.addEventListener('progress', function(evt){
+					if (xhr instanceof window.XMLHttpRequest) {
+						xhr.upload.addEventListener('progress', function (evt) {
 							var progress_local = Math.ceil(evt.loaded / evt.total * 100);
-							if (evt.lengthComputable && progress_pos !== progress_local)
-							{
+							if (evt.lengthComputable && progress_pos !== progress_local) {
 								progress_pos = progress_local;
 								progress_el.css('width', (progress_pos) + '%');
 							}
@@ -202,9 +196,8 @@ var bindFunctions = function()
 					}
 					return xhr;
 				},
-				success: function(data, textStatus, jqXHR) {
-					if (typeof window.Recaptcha !== "undefined")
-					{
+				success: function (data, textStatus, jqXHR) {
+					if (typeof window.Recaptcha !== "undefined") {
 						window.Recaptcha.reload();
 					}
 					if (typeof window.grecaptcha !== "undefined") {
@@ -212,11 +205,10 @@ var bindFunctions = function()
 					}
 
 					jQuery("#recaptcha_response_field").val('');
-					if (typeof data.captcha !== "undefined")
-					{
-						if(recaptcha2.enabled && typeof window.grecaptcha === "undefined") {
+					if (typeof data.captcha !== "undefined") {
+						if (recaptcha2.enabled && typeof window.grecaptcha === "undefined") {
 							jQuery('.recaptcha_widget').html('<div><p>You might be a bot! Enter a reCAPTCHA to continue.</p></div> \
-							<div class="g-recaptcha" data-sitekey="'+ recaptcha2.pubkey +'"></div> \
+							<div class="g-recaptcha" data-sitekey="' + recaptcha2.pubkey + '"></div> \
 							<script type="text/javascript" src="//www.google.com/recaptcha/api.js" async defer></script>')
 						}
 						jQuery('.recaptcha_widget').show();
@@ -224,8 +216,7 @@ var bindFunctions = function()
 						return false;
 					}
 
-					if (typeof data.error !== "undefined")
-					{
+					if (typeof data.error !== "undefined") {
 						reply_alert.html(data.error);
 						reply_alert.addClass('error'); // deals with showing the alert
 						return false;
@@ -242,44 +233,45 @@ var bindFunctions = function()
 
 
 					// redirect in case of new threads
-					if (data_obj.reply_numero < 1)
-					{
-						window.location = backend_vars.site_url + backend_vars.board_shortname + '/thread/'
-							+ data.thread_num + '/';
+					if (data_obj.reply_numero < 1) {
+						window.location = backend_vars.site_url + backend_vars.board_shortname + '/thread/' +
+							data.thread_num + '/';
 						return false;
 					}
 
 					insertPost(data, textStatus, jqXHR);
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function (jqXHR, textStatus, errorThrown) {
 					reply_alert.html('Connection error.');
 					reply_alert.addClass('error');
 					reply_alert.show();
 				},
-				complete: function() {
+				complete: function () {
 					// clear button's timeout, we can deal with the rest now
 					is_posting = false;
 					clearTimeout(buttonTimeout);
-					el.attr({'value': originalText});
+					el.attr({
+						'value': originalText
+					});
 					el_parent.find('[name=reply_gattai]').removeAttr('disabled');
 					el_parent.find('[name=reply_gattai_spoilered]').removeAttr('disabled');
 					progress_el.css('width', '0%');
-					progress_el.parent().animate({'opacity': '0.0'}, 300);
+					progress_el.parent().animate({
+						'opacity': '0.0'
+					}, 300);
 				}
 			};
 
 			// if we have FormData support, we can upload files!
-			if (window.FormData !== undefined)
-			{
+			if (window.FormData !== undefined) {
 				ajax_object.processData = false;
 				ajax_object.contentType = false;
 				var data_formdata = new FormData();
-				jQuery.each(data_obj, function(id, val){
+				jQuery.each(data_obj, function (id, val) {
 					data_formdata.append(id, val);
 				});
 
-				if (typeof file_el[0] !== 'undefined' && typeof file_el[0].files !== 'undefined')
-				{
+				if (typeof file_el[0] !== 'undefined' && typeof file_el[0].files !== 'undefined') {
 					data_formdata.append('file_image', file_el[0].files[0])
 				}
 
@@ -291,36 +283,32 @@ var bindFunctions = function()
 			event.preventDefault();
 		},
 
-		realtimeThread: function(el, post, event)
-		{
+		realtimeThread: function (el, post, event) {
 			realtimethread();
 			event.preventDefault();
 		},
 
-		expandThread: function(el, post, event)
-		{
+		expandThread: function (el, post, event) {
 			var thread_num = el.data('thread-num');
 
-			if (! el.data('expanded'))
-			{
+			if (!el.data('expanded')) {
 				el.spin('small');
 				jQuery.ajax({
 					url: backend_vars.api_url + '_/api/chan/thread/',
 					dataType: 'json',
 					type: 'GET',
 					data: {
-						num : thread_num,
+						num: thread_num,
 						board: backend_vars.board_shortname,
 						theme: backend_vars.selected_theme
 					},
-					success: function(data, textStatus, jqXHR){
+					success: function (data, textStatus, jqXHR) {
 						insertPost(data, textStatus, jqXHR);
 						var post_count = 0;
 						var media_count = 0;
-						jQuery.each(data[thread_num].posts, function(id, val){
+						jQuery.each(data[thread_num].posts, function (id, val) {
 							post_count++;
-							if (val.media !== null)
-							{
+							if (val.media !== null) {
 								media_count++;
 							}
 						});
@@ -332,11 +320,9 @@ var bindFunctions = function()
 						el.spin(false);
 					}
 				});
-			}
-			else
-			{
+			} else {
 				var thread = jQuery('article.thread[data-thread-num=' + thread_num + ']');
-				var articles =  thread.find('aside.posts article');
+				var articles = thread.find('aside.posts article');
 				articles.slice(0, articles.length - 5).hide();
 				var post_count = articles.filter(':hidden').length;
 				var media_count = articles.find('.thread_image_box:hidden').length;
@@ -349,25 +335,24 @@ var bindFunctions = function()
 			return false;
 		},
 
-		clearSearch: function(el, post, event)
-		{
+		clearSearch: function (el, post, event) {
 			var form = jQuery('.advanced_search').find('form');
 			form.find(':input').not(':input[type=submit]').not(':input[type=reset]').val('');
 
 			// keep the first radio set
 			var done_names = [];
 			form.find('[type=radio]').each(function (idx) {
-				if (!jQuery.inArray(jQuery(this).attr('name'), done_names))
-				{
+				if (!jQuery.inArray(jQuery(this).attr('name'), done_names)) {
 					jQuery(this).attr('checked', true);
 					done_names.push(jQuery(this).attr('name'));
 				}
 			});
 		},
 
-		mod: function(el, post, event)
-		{
-			el.attr({'disabled': 'disabled'});
+		mod: function (el, post, event) {
+			el.attr({
+				'disabled': 'disabled'
+			});
 			_data = {
 				board: el.data('board'),
 				id: el.data('id'),
@@ -383,17 +368,15 @@ var bindFunctions = function()
 				type: 'POST',
 				cache: false,
 				data: _data,
-				success: function(data){
+				success: function (data) {
 					el.removeAttr('disabled');
-					if (typeof data.error !== "undefined")
-					{
+					if (typeof data.error !== "undefined") {
 						alert(data.error);
 						return false;
 					}
 
 					// might need to be upgraded to array support
-					switch(el.data('action'))
-					{
+					switch (el.data('action')) {
 						case 'remove_post':
 							jQuery('.doc_id_' + el.data('id')).remove();
 							break;
@@ -420,7 +403,7 @@ var bindFunctions = function()
 								});
 							break;
 						case 'delete_all_reports':
-							$(".report_reason").each(function(){
+							$(".report_reason").each(function () {
 								$(this).remove();
 							});
 							break;
@@ -429,43 +412,42 @@ var bindFunctions = function()
 							break;
 					}
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function (jqXHR, textStatus, errorThrown) {
 
 				},
-				complete: function() {
-				}
+				complete: function () {}
 			});
 			return false;
 		},
 
-		activateModeration: function(el, post, event)
-		{
-			jQuery('.post_mod_controls button[data-function]').attr({'disabled': 'disabled'});
-			setTimeout(function(){
+		activateModeration: function (el, post, event) {
+			jQuery('.post_mod_controls button[data-function]').attr({
+				'disabled': 'disabled'
+			});
+			setTimeout(function () {
 				jQuery('.post_mod_controls button[data-function]').removeAttr('disabled');
 			}, 700);
 			jQuery('.post_mod_controls').show();
 			jQuery('button[data-function=activateModeration]').parent().hide();
 		},
 
-		activateExtraMod: function(el, post, event)
-		{
-			jQuery('.post_extra_mod button[data-function]').attr({'disabled': 'disabled'});
-			setTimeout(function(){
+		activateExtraMod: function (el, post, event) {
+			jQuery('.post_extra_mod button[data-function]').attr({
+				'disabled': 'disabled'
+			});
+			setTimeout(function () {
 				jQuery('.post_extra_mod button[data-function]').removeAttr('disabled');
 			}, 700);
 			jQuery('.post_extra_mod').show();
 			jQuery('button[data-function=activateExtraMod]').parent().hide();
 		},
 
-		closeModal: function(el, post)
-		{
+		closeModal: function (el, post) {
 			el.closest(".modal").modal('hide');
 			return false;
 		},
 
-		'delete': function(el, post, event)
-		{
+		'delete': function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			var foolfuuka_reply_password = getCookie('foolfuuka_reply_password');
 			modal.find(".title").html('Delete &raquo; Post No. ' + el.data("post-id"));
@@ -480,8 +462,7 @@ var bindFunctions = function()
 			modal.find(".modal-password").val(backend_vars.user_pass);
 		},
 
-		report: function(el, post, event)
-		{
+		report: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			modal.find(".title").html('Report &raquo; Post No.' + el.data("post-id"));
 			modal.find(".modal-error").html('');
@@ -491,11 +472,11 @@ var bindFunctions = function()
 			<input type="hidden" class="modal-board" value="' + el.data("board") + '" />\n\
 			<span class="modal-field">Comment</span>\n\
 			<textarea class="modal-comment"></textarea>\n\
-			<span class="model-note">Note: Requests for content removal and take-downs must be sent via email.</span>');
+			<span class="model-note">Note: Remember to include your contact information in the comment for takedown requests.</span>');
 			modal.find(".submitModal").data("action", 'report');
 		},
 
-		addBulkReport: function(el, post, event) {
+		addBulkReport: function (el, post, event) {
 			jQuery('article.thread, article.post').each(function () {
 				if (typeof jQuery(this).attr('data-board') != 'undefined') {
 					var breport = '<input class="bulkreportselect" type="checkbox" ' +
@@ -503,7 +484,7 @@ var bindFunctions = function()
 						'data-num="' + jQuery(this).attr('id') + '" data-doc-id="' + jQuery(this).attr('data-doc-id') + '">' +
 						'<a href="#" class="btnr parent" data-controls-modal="post_tools_modal" data-backdrop="true" ' +
 						'data-keyboard="true" data-function="bulkReport">Report Selected</a>';
-					if(jQuery(window).width()<=600) {
+					if (jQuery(window).width() <= 600) {
 						jQuery(this).find('span.mobile_bulk:eq(0)').replaceWith(breport);
 					} else {
 						jQuery(this).find('a.btnr[data-function=report]:eq(0)').replaceWith(breport);
@@ -513,7 +494,7 @@ var bindFunctions = function()
 			el.closest(".modal").modal('hide');
 		},
 
-		bulkReport: function(el, post, event) {
+		bulkReport: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			modal.find(".title").html('Report Posts');
 			modal.find(".modal-error").html('');
@@ -524,12 +505,11 @@ var bindFunctions = function()
 			});
 			modal.find(".modal-information").append('<br><span class="modal-field">Comment</span>\n\
 			<textarea class="modal-comment"></textarea>\n\
-			<span class="model-note">Note: Requests for content removal and take-downs must be sent via email.</span>');
+			<span class="model-note">Note: Remember to include your contact information in the comment for takedown requests.</span>');
 			modal.find(".submitModal").data("action", 'bulk-report');
 		},
 
-		ban: function(el, post, event)
-		{
+		ban: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			modal.find(".title").html('Ban user with IP ' + el.data("ip"));
 			modal.find(".modal-error").html('');
@@ -552,8 +532,7 @@ var bindFunctions = function()
 			modal.find(".submitModal").data("action", 'ban');
 		},
 
-		editPost: function(el, post, event)
-		{
+		editPost: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			modal.find(".title").html('Edit Post No. ' + el.data("post-id"));
 			modal.find(".modal-error").html('');
@@ -587,7 +566,7 @@ var bindFunctions = function()
 				<label><input type="checkbox" name="transparency"> Include transparency message</label>');
 			modal.find(".submitModal").data("action", 'edit-post');
 			jQuery.ajax({
-				url: backend_vars.api_url + '_/api/chan/post/' ,
+				url: backend_vars.api_url + '_/api/chan/post/',
 				dataType: 'json',
 				type: 'GET',
 				cache: false,
@@ -595,7 +574,7 @@ var bindFunctions = function()
 					board: el.data('board'),
 					num: el.data('post-id')
 				},
-				success: function(data){
+				success: function (data) {
 					jQuery("input[name='edit-subject']").val(data.title);
 					jQuery("input[name='edit-name']").val(data.name);
 					jQuery("input[name='edit-trip']").val(data.trip);
@@ -604,7 +583,7 @@ var bindFunctions = function()
 					jQuery("input[name='edit-poster_hash']").val(data.poster_hash);
 					jQuery("select[name='edit-capcode']").val(data.capcode);
 					jQuery("textarea[name='edit-comment']").val(data.comment);
-					if(data.media != null) {
+					if (data.media != null) {
 						modal.find(".modal-information").append('<hr><p>Media</p><input type="hidden" name="media_id" value="" />\
 						<div class="input-prepend">\
 						<label class="add-on" for="filename">Filename</label><input name="edit-filename" id="filename" type="text"></div>\
@@ -619,7 +598,7 @@ var bindFunctions = function()
 						<label for="spoiler"><input type="checkbox" id="spoiler" value="true" name="edit-spoiler"> Spoiler Image</label>');
 						jQuery("input[name='media_id']").val(data.media.media_id);
 						jQuery("input[name='edit-filename']").val(data.media.media_filename);
-						if(data.media.spoiler == 1) {
+						if (data.media.spoiler == 1) {
 							jQuery("input[name='edit-spoiler']").click();
 						}
 						jQuery("input[name='edit-media_w']").val(data.media.media_w);
@@ -628,25 +607,25 @@ var bindFunctions = function()
 						jQuery("input[name='edit-preview_h']").val(data.media.preview_h);
 					}
 				},
-				error: function() {
+				error: function () {
 					console.log('post not found');
 					modal.closeModal();
 				},
-				complete: function() {
+				complete: function () {
 					modal.find(".modal-information").append('</fieldset>');
 					modal.find(".modal-loading").hide();
 				}
 			});
 		},
 
-		addBulkEdit: function(el, post, event) {
+		addBulkEdit: function (el, post, event) {
 			jQuery('article.thread, article.post').each(function () {
 				if (typeof jQuery(this).attr('data-board') != 'undefined') {
 					var bulk = '<input class="bulkselect" type="checkbox" data-board="' + jQuery(this).attr('data-board') + '" ' +
 						'data-num="' + jQuery(this).attr('id') + '" data-doc-id="' + jQuery(this).attr('data-doc-id') + '">' +
 						'<a href="#" class="btnr parent" data-controls-modal="post_tools_modal" data-backdrop="true" ' +
 						'data-keyboard="true" data-function="bulkEdit">Edit Selected</a>';
-					if(jQuery(window).width()<=600) {
+					if (jQuery(window).width() <= 600) {
 						jQuery(this).find('span.mobile_bulk:eq(0)').replaceWith(bulk);
 					} else {
 						jQuery(bulk).prependTo($(this).find('.post_data:first'));
@@ -656,7 +635,7 @@ var bindFunctions = function()
 			el.closest(".modal").modal('hide');
 		},
 
-		bulkEdit: function(el, post, event) {
+		bulkEdit: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			modal.find(".title").html('Edit Posts');
 			modal.find(".modal-error").html('');
@@ -704,7 +683,7 @@ var bindFunctions = function()
 			modal.find(".submitModal").data("action", 'bulk-edit');
 		},
 
-		addBulkMod: function(el, post, event) {
+		addBulkMod: function (el, post, event) {
 			jQuery('article.thread, article.post').each(function () {
 				if (typeof jQuery(this).attr('data-board') != 'undefined') {
 					var bulk = '<input class="bulkmodselect" type="checkbox" ' +
@@ -713,7 +692,7 @@ var bindFunctions = function()
 						'<a href="#" class="btnr parent" data-controls-modal="post_tools_modal" data-backdrop="true" ' +
 						'data-keyboard="true" data-function="bulkMod">Mod Selected</a>';
 					jQuery(this).find('a[data-function=delete]:eq(0)').replaceWith();
-					if(jQuery(window).width()<=600) {
+					if (jQuery(window).width() <= 600) {
 						jQuery(this).find('span.mobile_bulk:eq(0)').replaceWith(bulk);
 					} else {
 						jQuery(this).find('a.btnr[data-function=delete]:eq(0)').replaceWith(bulk);
@@ -722,7 +701,7 @@ var bindFunctions = function()
 			});
 		},
 
-		bulkMod: function(el, post, event) {
+		bulkMod: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			modal.find(".title").html('Mod Posts');
 			modal.find(".modal-error").html('');
@@ -741,14 +720,13 @@ var bindFunctions = function()
 			modal.find(".submitModal").data("action", 'bulk-mod');
 		},
 
-		submitModal: function(el, post, event)
-		{
+		submitModal: function (el, post, event) {
 			var modal = jQuery("#post_tools_modal");
 			var loading = modal.find(".modal-loading");
 			var action = el.data("action");
 			var _board = modal.find(".modal-board").val();
 			var _doc_id = modal.find(".modal-post-id").val();
-			var _href = backend_vars.api_url+'_/api/chan/user_actions/';
+			var _href = backend_vars.api_url + '_/api/chan/user_actions/';
 			var _data = {};
 
 			if (action == 'report') {
@@ -759,8 +737,7 @@ var bindFunctions = function()
 					reason: modal.find(".modal-comment").val(),
 					csrf_fool: backend_vars.csrf_hash
 				};
-			}
-			else if (action == 'report_media') {
+			} else if (action == 'report_media') {
 				_data = {
 					action: 'report_media',
 					board: _board,
@@ -768,8 +745,7 @@ var bindFunctions = function()
 					reason: modal.find(".modal-comment").val(),
 					csrf_fool: backend_vars.csrf_hash
 				};
-			}
-			else if (action == 'delete') {
+			} else if (action == 'delete') {
 				_data = {
 					action: 'delete',
 					board: _board,
@@ -777,10 +753,8 @@ var bindFunctions = function()
 					password: modal.find(".modal-password").val(),
 					csrf_fool: backend_vars.csrf_hash
 				};
-			}
-			else if (action == 'ban')
-			{
-				_href = backend_vars.api_url+'_/api/chan/mod_actions/';
+			} else if (action == 'ban') {
+				_href = backend_vars.api_url + '_/api/chan/mod_actions/';
 				_data = {
 					action: 'ban_user',
 					board: modal.find('.modal-board').val(),
@@ -796,10 +770,8 @@ var bindFunctions = function()
 				if ($('input[name=ban_public]').is(':checked')) {
 					_data.ban_public = true;
 				}
-			}
-			else if (action == 'edit-post')
-			{
-				_href = backend_vars.api_url+'_/api/chan/edit_post/';
+			} else if (action == 'edit-post') {
+				_href = backend_vars.api_url + '_/api/chan/edit_post/';
 				_data = {
 					action: 'edit_post',
 					board: modal.find('.modal-board').val(),
@@ -817,7 +789,7 @@ var bindFunctions = function()
 				if ($('input[name=transparency]').is(':checked')) {
 					_data.transparency = true;
 				}
-				if(modal.find("input[name='media_id']").val() != null) {
+				if (modal.find("input[name='media_id']").val() != null) {
 					_data.media_edit = true;
 					_data.filename = modal.find("input[name='edit-filename']").val();
 					_data.media_w = modal.find("input[name='edit-media_w']").val();
@@ -830,8 +802,7 @@ var bindFunctions = function()
 						_data.spoiler = 0;
 					}
 				}
-			}
-			else if (action == 'bulk-edit') {
+			} else if (action == 'bulk-edit') {
 				_href = backend_vars.api_url + '_/api/chan/edit_post/';
 
 				_data = {
@@ -859,13 +830,11 @@ var bindFunctions = function()
 				}
 				jQuery('.bulkselect:checked').each(function () {
 					_data.posts.push({
-							radix: $(this).attr('data-board'),
-							doc_id: $(this).attr('data-doc-id')
-						}
-					);
+						radix: $(this).attr('data-board'),
+						doc_id: $(this).attr('data-doc-id')
+					});
 				});
-			}
-			else if (action == 'bulk-report') {
+			} else if (action == 'bulk-report') {
 				_data = {
 					action: 'bulk_report',
 					reason: modal.find(".modal-comment").val(),
@@ -874,15 +843,13 @@ var bindFunctions = function()
 				};
 				jQuery('.bulkreportselect:checked').each(function () {
 					_data.posts.push({
-							radix: $(this).attr('data-board'),
-							doc_id: $(this).attr('data-doc-id'),
-							num: $(this).attr('data-num')
-						}
-					);
+						radix: $(this).attr('data-board'),
+						doc_id: $(this).attr('data-doc-id'),
+						num: $(this).attr('data-num')
+					});
 				});
-			}
-			else if (action == 'bulk-mod') {
-				_href = backend_vars.api_url+'_/api/chan/bulk_mod/';
+			} else if (action == 'bulk-mod') {
+				_href = backend_vars.api_url + '_/api/chan/bulk_mod/';
 				_data = {
 					action: 'bulk_mod',
 					mod_function: $('input[name=modaction]:checked').val(),
@@ -891,21 +858,19 @@ var bindFunctions = function()
 				};
 				jQuery('.bulkmodselect:checked').each(function () {
 					_data.posts.push({
-							radix: $(this).attr('data-board'),
-							doc_id: $(this).attr('data-doc-id'),
-							num: $(this).attr('data-num')
-						}
-					);
+						radix: $(this).attr('data-board'),
+						doc_id: $(this).attr('data-doc-id'),
+						num: $(this).attr('data-num')
+					});
 				});
-			}
-			else {
+			} else {
 				// Stop It! Unable to determine which action to use.
 				return false;
 			}
 
 			_data[backend_vars.csrf_token_key] = getCookie(backend_vars.csrf_token_key);
 
-			jQuery.post(_href, _data, function(result) {
+			jQuery.post(_href, _data, function (result) {
 				loading.hide();
 				if (typeof result.error !== 'undefined') {
 					modal.find(".modal-error").html('<div class="alert alert-error" data-alert="alert"><a class="close" href="#">&times;</a><p>' + result.error + '</p></div>').show();
@@ -935,32 +900,27 @@ var bindFunctions = function()
 			return false;
 		},
 
-		clearLatestSearches: function(el, post, event)
-		{
+		clearLatestSearches: function (el, post, event) {
 			setCookie('search_latest_5', '', 0, '/', backend_vars.cookie_domain);
-			jQuery('li.latest_search').each(function(idx){
+			jQuery('li.latest_search').each(function (idx) {
 				jQuery(this).remove();
 			});
 		},
 
-		searchUser: function(el, post, event)
-		{
+		searchUser: function (el, post, event) {
 			window.location.href = backend_vars.site_url + el.data('board') +
 				'/search/poster_ip/' + el.data('poster-ip');
 		},
 
-		searchUserGlobal: function(el, post, event)
-		{
+		searchUserGlobal: function (el, post, event) {
 			window.location.href = backend_vars.site_url + '_/search/poster_ip/' + el.data('poster-ip');
 		},
 
-		toggleExif: function(el, post, event)
-		{
-			jQuery(".exiftable."+post).toggle();
+		toggleExif: function (el, post, event) {
+			jQuery(".exiftable." + post).toggle();
 		},
 
-		searchhilight: function(el, post, event)
-		{
+		searchhilight: function (el, post, event) {
 			if (el.is(':checked')) {
 				setCookie("searchhilight_enabled", true, 90, '/', backend_vars.cookie_domain);
 				if (jQuery("span[data-markjs='true']").length) {
@@ -977,30 +937,30 @@ var bindFunctions = function()
 
 
 	// unite all the onclick functions in here
-	jQuery(document.body).on("click", "a[data-function], button[data-function], input[data-function]", function(event) {
+	jQuery(document.body).on("click", "a[data-function], button[data-function], input[data-function]", function (event) {
 		var el = jQuery(this);
 		var post = el.data("post");
 		return clickCallbacks[el.data("function")](el, post, event);
 	});
 
-	jQuery(document.body).on("mousedown touchstart", ".search_box, .search-query", function(event) {
+	jQuery(document.body).on("mousedown touchstart", ".search_box, .search-query", function (event) {
 		event.stopPropagation();
 	});
 
-	jQuery(document.body).on("mousedown touchstart", function(event) {
+	jQuery(document.body).on("mousedown touchstart", function (event) {
 		var search_input = jQuery('#search_form_comment');
 		jQuery('.search-query').val(search_input.val());
 		jQuery('.search_box').hide();
 	});
 
-	jQuery(document.body).on("mousedown touchstart", ".search-query", function() {
+	jQuery(document.body).on("mousedown touchstart", ".search-query", function () {
 		var el = jQuery(this);
 		var offset = el.offset();
 		var width = el.outerWidth();
 		var search_box = jQuery('.search_box');
 		var comment_wrap = search_box.find('.comment_wrap');
 		var comment_wrap_pos = comment_wrap.position();
-		if(jQuery(window).width()<=600) {
+		if (jQuery(window).width() <= 600) {
 			search_box.css({
 				top: (offset.top - 11) + 'px'
 			}).show();
@@ -1016,8 +976,7 @@ var bindFunctions = function()
 	});
 
 	// how could we make it work well on cellphones?
-	if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent))
-	{
+	if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
 		return false;
 	}
 
@@ -1030,11 +989,9 @@ var bindFunctions = function()
 	var show_post_num; // the number of the post that has to show in the xhr callback, when 0 don't run popups
 
 	// hover functions go here
-	jQuery("#main").on("mouseover mouseout", "article a[data-backlink]", function(event)
-	{
+	jQuery("#main").on("mouseover mouseout", "article a[data-backlink]", function (event) {
 
-		if (event.type == "mouseover")
-		{
+		if (event.type == "mouseover") {
 
 			var backlink = jQuery("#backlink");
 			var el = jQuery(this);
@@ -1043,37 +1000,29 @@ var bindFunctions = function()
 			var height = el.height();
 			var width = el.width();
 
-			if (el.attr('data-backlink') != 'true')
-			{
+			if (el.attr('data-backlink') != 'true') {
 				// gallery
 				var thread_id = el.attr('data-backlink');
 				quote = backend_vars.threads_data[thread_id];
 				backlink.css('display', 'block');
 				backlink.html(quote.formatted);
-			}
-			else if (jQuery('#' + el.data('post')).hasClass('post'))
-			{
+			} else if (jQuery('#' + el.data('post')).hasClass('post')) {
 				// normal posts
 				var toClone = jQuery('#' + el.data('post'));
 				if (toClone.length == 0)
 					return false;
 				backlink.css('display', 'block');
 				backlink.html(toClone.clone().show());
-			}
-			else if (typeof backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')] !== 'undefined')
-			{
+			} else if (typeof backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')] !== 'undefined') {
 				// if we know the post doesn't exist
-				if (backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')] === false)
-				{
+				if (backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')] === false) {
 					shakeBacklink(el);
 					return false;
 				}
 				var data = backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')];
 				backlink.html(data.formatted);
 				backlink.css('display', 'block');
-			}
-			else
-			{
+			} else {
 				show_post_board = el.data('board');
 				show_post_num = el.data('post');
 
@@ -1082,11 +1031,11 @@ var bindFunctions = function()
 					return false;
 				}
 
-				timeout = setTimeout(function() {
+				timeout = setTimeout(function () {
 					var backlink_spin = el;
 					backlink_spin.spin('small');
 					backlink_jqxhr = jQuery.ajax({
-						url: backend_vars.api_url + '_/api/chan/post/' ,
+						url: backend_vars.api_url + '_/api/chan/post/',
 						dataType: 'json',
 						type: 'GET',
 						cache: false,
@@ -1095,10 +1044,9 @@ var bindFunctions = function()
 							num: el.data('post'),
 							theme: backend_vars.selected_theme
 						},
-						success: function(data){
+						success: function (data) {
 							backlink_spin.spin(false);
-							if (typeof data.error !== "undefined")
-							{
+							if (typeof data.error !== "undefined") {
 								backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')] = false;
 								shakeBacklink(el);
 								return false;
@@ -1106,18 +1054,17 @@ var bindFunctions = function()
 							backend_vars.loaded_posts[el.data('board') + ':' + el.data('post')] = data;
 
 							// avoid showing the post if the mouse is not there anymore
-							if (show_post_board === el.data('board') && show_post_num === el.data('post'))
-							{
+							if (show_post_board === el.data('board') && show_post_num === el.data('post')) {
 								backlink.html(data.formatted);
 								backlink.find("time").localize('ddd dd mmm yyyy HH:MM:ss');
 								backlink.css('display', 'block');
 								showBacklink(backlink, pos, height, width);
 							}
 						},
-						error: function() {
+						error: function () {
 							shakeBacklink(el);
 						},
-						complete: function() {
+						complete: function () {
 							posts_being_fetched[el.data('board') + ':' + el.data('post')] = false;
 						}
 					});
@@ -1127,9 +1074,7 @@ var bindFunctions = function()
 
 			backlink.find("time").localize('ddd dd mmm yyyy HH:MM:ss');
 			showBacklink(backlink, pos, height, width);
-		}
-		else
-		{
+		} else {
 			show_post_board = false;
 			show_post_num = false;
 			clearTimeout(timeout);
@@ -1138,59 +1083,62 @@ var bindFunctions = function()
 	});
 };
 
-var hideThreads = function()
-{
-	if (typeof backend_vars.board_shortname !== "undefined" && typeof backend_vars.thread_id === "undefined")
-	{
+var hideThreads = function () {
+	if (typeof backend_vars.board_shortname !== "undefined" && typeof backend_vars.thread_id === "undefined") {
 		var hiddenBoardThreads = JSON.parse(localStorage.getItem("hiddenBoardThreads/" + backend_vars.board_shortname)) || {};
 
-		for (var num in hiddenBoardThreads)
-		{
+		for (var num in hiddenBoardThreads) {
 			jQuery(".doc_id_" + num).hide();
 			jQuery(".stub_doc_id_" + num).show();
 		}
 	}
 };
 
-var hidePosts = function()
-{
-	if (typeof backend_vars.board_shortname !== "undefined")
-	{
+var hidePosts = function () {
+	if (typeof backend_vars.board_shortname !== "undefined") {
 		var hiddenBoardPosts = JSON.parse(localStorage.getItem("hiddenBoardPosts/" + backend_vars.board_shortname)) || {};
 
-		for (var num in hiddenBoardPosts)
-		{
+		for (var num in hiddenBoardPosts) {
 			jQuery(".doc_id_" + num).hide();
 			jQuery(".stub_doc_id_" + num).show();
 		}
 	}
 };
 
-var shakeBacklink = function(el)
-{
-	el.css({position:'relative'});
-	el.animate({left: '-5px'},100)
-		.animate({left: '+5px'}, 100)
-		.animate({left: '-5px'}, 100)
-		.animate({left: '+5px'}, 100)
-		.animate({left: '+0px'}, 100, 'linear', function(){
-			el.css({position:'static'});
+var shakeBacklink = function (el) {
+	el.css({
+		position: 'relative'
+	});
+	el.animate({
+			left: '-5px'
+		}, 100)
+		.animate({
+			left: '+5px'
+		}, 100)
+		.animate({
+			left: '-5px'
+		}, 100)
+		.animate({
+			left: '+5px'
+		}, 100)
+		.animate({
+			left: '+0px'
+		}, 100, 'linear', function () {
+			el.css({
+				position: 'static'
+			});
 		});
 
 };
 
-var showBacklink = function(backlink, pos, height, width)
-{
-	if (jQuery(window).width()/2 < pos.left + width/2)
-	{
+var showBacklink = function (backlink, pos, height, width) {
+	if (jQuery(window).width() / 2 < pos.left + width / 2) {
 		backlink.css({
 			right: (jQuery(window).width() - pos.left - width) + 'px',
 			top: (pos.top + height + 3) + 'px',
 			left: 'auto'
 		});
-	}
-	else
-	{
+	} else {
 		backlink.css({
 			left: (pos.left) + 'px',
 			top: (pos.top + height + 3) + 'px',
@@ -1201,63 +1149,49 @@ var showBacklink = function(backlink, pos, height, width)
 	backlink.find('.stub').remove();
 };
 
-var backlinkify = function(elem, post_id, subnum)
-{
+var backlinkify = function (elem, post_id, subnum) {
 	var backlinks = {};
-	if (subnum > 0)
-	{
+	if (subnum > 0) {
 		post_id += "_" + subnum;
 	}
 
-	elem.find("a[data-backlink=true]").each(function(idx, post) {
-		if (jQuery(post).text().indexOf('/') >= 0)
-		{
+	elem.find("a[data-backlink=true]").each(function (idx, post) {
+		if (jQuery(post).text().indexOf('/') >= 0) {
 			return true;
 		}
 
 		var p_id = jQuery(post).attr('data-post');
 		var board_shortname = jQuery(post).attr('data-board');
 
-		if (typeof backlinks[p_id] === "undefined")
-		{
+		if (typeof backlinks[p_id] === "undefined") {
 			backlinks[p_id] = [];
 		}
 
-		if (typeof backend_vars.last_limit === "undefined")
-		{
-			if (typeof backend_vars.thread_id === "undefined")
-			{
+		if (typeof backend_vars.last_limit === "undefined") {
+			if (typeof backend_vars.thread_id === "undefined") {
 				backlinks[p_id].push('<a href="' + backend_vars.site_url + board_shortname + '/post/' + post_id + '" data-function="highlight" data-backlink="true" data-post="' + post_id + '">&gt;&gt;' + post_id.replace('_', ',') + '</a>');
 
 				// convert /post/ links to real urls
-				if (jQuery('#' + p_id).length)
-				{
+				if (jQuery('#' + p_id).length) {
 					jQuery(post).attr('href', backend_vars.site_url + board_shortname + '/post/' + p_id);
 				}
-			}
-			else
-			{
+			} else {
 				backlinks[p_id].push('<a href="' + backend_vars.site_url + board_shortname + '/thread/' + backend_vars.thread_id + '/#' + post_id + '" data-function="highlight" data-backlink="true" data-post="' + post_id + '">&gt;&gt;' + post_id.replace('_', ',') + '</a>');
 
 				// convert /post/ links to real urls
-				if (jQuery('#' + p_id).length)
-				{
-					if (backend_vars.thread_id == p_id)
-					{
+				if (jQuery('#' + p_id).length) {
+					if (backend_vars.thread_id == p_id) {
 						jQuery(post).addClass('op');
 					}
 
 					jQuery(post).attr('href', backend_vars.site_url + board_shortname + '/thread/' + backend_vars.thread_id + '/#' + p_id);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			backlinks[p_id].push('<a href="' + backend_vars.site_url + board_shortname + '/last/' + backend_vars.last_limit + '/' + backend_vars.thread_id + '/#' + post_id + '" data-function="highlight" data-backlink="true" data-post="' + post_id + '">&gt;&gt;' + post_id.replace('_', ',') + '</a>');
 
 			// convert /post/ links to real urls
-			if (jQuery('#' + p_id).length)
-			{
+			if (jQuery('#' + p_id).length) {
 				jQuery(post).attr('href', backend_vars.site_url + board_shortname + '/last/' + backend_vars.last_limit + '/' + backend_vars.thread_id + '/#' + p_id);
 			}
 		}
@@ -1265,23 +1199,21 @@ var backlinkify = function(elem, post_id, subnum)
 		backlinks[p_id] = eliminateDuplicates(backlinks[p_id]);
 	});
 
-	jQuery.each(backlinks, function(key, val){
+	jQuery.each(backlinks, function (key, val) {
 		var post = jQuery("#" + key);
 		if (post.length == 0)
 			return false;
 
 		var post_backlink = post.find(".post_backlink:eq(0)");
 		var already_backlinked = post_backlink.text().replace('>>', '').split(' ');
-		jQuery.each(already_backlinked, function(i,v){
-			if (typeof val[v] !== "undefined")
-			{
+		jQuery.each(already_backlinked, function (i, v) {
+			if (typeof val[v] !== "undefined") {
 				delete val[v];
 			}
 		});
 
-		if (post_backlink.find('[data-post=' + post_id  + ']').length == 0)
-		{
-			post_backlink.html(post_backlink.html() + ((post_backlink.html().length > 0)?" ":"") + val.join(" "));
+		if (post_backlink.find('[data-post=' + post_id + ']').length == 0) {
+			post_backlink.html(post_backlink.html() + ((post_backlink.html().length > 0) ? " " : "") + val.join(" "));
 			post_backlink.parent().show();
 		}
 	});
@@ -1289,35 +1221,33 @@ var backlinkify = function(elem, post_id, subnum)
 
 var timelapse = 10;
 var currentlapse = 0;
-var realtimethread = function(){
+var realtimethread = function () {
 	clearTimeout(currentlapse);
 	jQuery.ajax({
 		url: backend_vars.api_url + '_/api/chan/thread/',
 		dataType: 'json',
 		type: 'GET',
 		data: {
-			num : backend_vars.thread_id,
+			num: backend_vars.thread_id,
 			board: backend_vars.board_shortname,
 			latest_doc_id: backend_vars.latest_doc_id,
 			theme: backend_vars.selected_theme,
 			last_limit: typeof backend_vars.last_limit === "undefined" ? null : backend_vars.last_limit
 		},
 		success: insertPost,
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function (jqXHR, textStatus, errorThrown) {
 			//timelapse = 10;
 		},
-		complete: function() {
-			currentlapse = setTimeout(realtimethread, timelapse*1000);
+		complete: function () {
+			currentlapse = setTimeout(realtimethread, timelapse * 1000);
 		}
 	});
 
 	return false;
 };
 
-var highlightSearchResults = function()
-{
-	jQuery.each(backend_vars.search_args, function(id, val)
-	{
+var highlightSearchResults = function () {
+	jQuery.each(backend_vars.search_args, function (id, val) {
 		var selector;
 		if (id == "text") {
 			selector = "div.text";
@@ -1336,7 +1266,7 @@ var highlightSearchResults = function()
 		}
 		if (selector != "") {
 			val = val.replace(/[\.\*\^\|'"!]/g, " ");
-			jQuery( selector ).mark(val, {
+			jQuery(selector).mark(val, {
 				"element": "span",
 				"className": "highlight"
 			});
@@ -1345,20 +1275,15 @@ var highlightSearchResults = function()
 };
 
 var ghost = false;
-var insertPost = function(data, textStatus, jqXHR)
-{
+var insertPost = function (data, textStatus, jqXHR) {
 	var w_height = jQuery(document).height();
 	var found_posts = false;
 
-	if (data !== null)
-	{
-		jQuery.each(data, function(id, val)
-		{
-			if (typeof val.posts !== "undefined")
-			{
+	if (data !== null) {
+		jQuery.each(data, function (id, val) {
+			if (typeof val.posts !== "undefined") {
 				var aside = jQuery('article.thread[data-thread-num=' + id + '] aside.posts');
-				jQuery.each(val.posts, function(idx, value)
-				{
+				jQuery.each(val.posts, function (idx, value) {
 					found_posts = true;
 					var post = jQuery(value.formatted);
 
@@ -1374,26 +1299,23 @@ var insertPost = function(data, textStatus, jqXHR)
 					});
 
 					// avoid inserting twice
-					if (jQuery('.doc_id_' + value.doc_id).length != 0)
-					{
+					if (jQuery('.doc_id_' + value.doc_id).length != 0) {
 						jQuery('.doc_id_' + value.doc_id).remove();
 					}
 
 					aside.append(post);
 					backlinkify(post, value.num, value.subnum);
 
-					$('pre,code').each(function(i, block) {
+					$('pre,code').each(function (i, block) {
 						hljs.highlightBlock(block);
 					});
 
-					if(backend_vars.latest_doc_id < value.doc_id)
-					{
+					if (backend_vars.latest_doc_id < value.doc_id) {
 						backend_vars.latest_doc_id = value.doc_id;
 					}
 
 					// update comment box when encountering ghost posts
-					if (ghost === false && value.subnum > 0)
-					{
+					if (ghost === false && value.subnum > 0) {
 						jQuery("#file_image").parent().remove();
 						jQuery("#reply_chennodiscursus").attr("placeholder", backend_vars.gettext['ghost_mode']);
 
@@ -1404,30 +1326,24 @@ var insertPost = function(data, textStatus, jqXHR)
 		});
 	}
 
-	if (found_posts)
-	{
-		if (jQuery('#reply :focus').length > 0)
-		{
+	if (found_posts) {
+		if (jQuery('#reply :focus').length > 0) {
 			window.scrollBy(0, jQuery(document).height() - w_height);
 		}
 
 		enableRealtimeThread();
 
 		timelapse = 10;
-	}
-	else
-	{
-		if (timelapse < 120)
-		{
+	} else {
+		if (timelapse < 120) {
 			timelapse += 5;
 		}
 	}
 };
 
-var findSameImageFromFile = function(obj)
-{
+var findSameImageFromFile = function (obj) {
 	var reader = new FileReader();
-	reader.onloadend = function(evt){
+	reader.onloadend = function (evt) {
 		if (evt.target.readyState == FileReader.DONE) {
 			var fileContents = evt.target.result;
 			var digestBytes = Crypto.MD5(Crypto.charenc.Binary.stringToBytes(fileContents), {
@@ -1442,29 +1358,24 @@ var findSameImageFromFile = function(obj)
 	reader.readAsBinaryString(obj.files[0]);
 };
 
-var toggleHighlight = function(id)
-{
+var toggleHighlight = function (id) {
 	var classn = 'highlight';
-	jQuery("article").each(function() {
+	jQuery("article").each(function () {
 		var post = jQuery(this);
 
-		if (post.hasClass(classn))
-		{
+		if (post.hasClass(classn)) {
 			post.removeClass(classn);
 		}
 
-		if (post.attr("id") == id)
-		{
+		if (post.attr("id") == id) {
 			post.addClass(classn);
 		}
 	})
 };
 
 var realtime = false;
-var enableRealtimeThread = function()
-{
-	if (realtime == false)
-	{
+var enableRealtimeThread = function () {
+	if (realtime == false) {
 		realtime = true;
 
 		jQuery('.js_hook_realtimethread').html(backend_vars.gettext['thread_is_real_time'] + ' <a class="btnr" href="#" data-function="realtimeThread">' + backend_vars.gettext['update_now'] + '</a>');
@@ -1472,7 +1383,7 @@ var enableRealtimeThread = function()
 	}
 };
 
-jQuery(document).ready(function() {
+jQuery(document).ready(function () {
 
 	// settings
 	jQuery.support.cors = true;
@@ -1481,20 +1392,28 @@ jQuery(document).ready(function() {
 	// check if input[date] is supported, so we can use by default input[text] with placeholder without breaking w3
 	var i = document.createElement("input");
 	i.setAttribute("type", "date");
-	if (i.type !== "text")
-	{
-		jQuery('#date_end').replaceWith(jQuery('<input>').attr({id: 'date_end', name: 'end', type: 'date'}));
-		jQuery('#date_start').replaceWith(jQuery('<input>').attr({id: 'date_start', name: 'start', type: 'date'}));
+	if (i.type !== "text") {
+		jQuery('#date_end').replaceWith(jQuery('<input>').attr({
+			id: 'date_end',
+			name: 'end',
+			type: 'date'
+		}));
+		jQuery('#date_start').replaceWith(jQuery('<input>').attr({
+			id: 'date_start',
+			name: 'start',
+			type: 'date'
+		}));
 	}
 
 	// opera doesn't play well with the modal transition
-	if (navigator.appName == "Opera" && navigator.userAgent.match(/Version\/12\./))
-	{
+	if (navigator.appName == "Opera" && navigator.userAgent.match(/Version\/12\./)) {
 		$('#post_tools_modal').removeClass('fade');
 	}
 
 	// firefox sucks at styling input, so we need to add size="", that guess what? It's not w3 compliant!
-	jQuery('#file_image').attr({size: '16'});
+	jQuery('#file_image').attr({
+		size: '16'
+	});
 
 	var post = location.href.split(/#/);
 	if (post[1]) {
@@ -1506,11 +1425,10 @@ jQuery(document).ready(function() {
 		}
 
 		toggleHighlight(post[1]);
-		jQuery('#'+post[1].replace('q', ''))[0].scrollIntoView( true );
+		jQuery('#' + post[1].replace('q', ''))[0].scrollIntoView(true);
 	}
 
-	if (typeof backend_vars.thread_id !== "undefined" && (Math.round(new Date().getTime() / 1000) - backend_vars.latest_timestamp < 6 * 60 * 60))
-	{
+	if (typeof backend_vars.thread_id !== "undefined" && (Math.round(new Date().getTime() / 1000) - backend_vars.latest_timestamp < 6 * 60 * 60)) {
 		enableRealtimeThread();
 	}
 
@@ -1545,25 +1463,23 @@ jQuery(document).ready(function() {
 		highlightSearchResults();
 	}
 
-	jQuery('a[data-toggle="dropdown"], button[data-toggle="dropdown"]').on('touchstart', function(event) {
+	jQuery('a[data-toggle="dropdown"], button[data-toggle="dropdown"]').on('touchstart', function (event) {
 		event.stopPropagation();
 	})
 });
 
 $.fn.extend({
-	insertAtCaret: function(text){
+	insertAtCaret: function (text) {
 		var obj;
 
-		if (typeof this[0].name !== 'undefined')
-		{
+		if (typeof this[0].name !== 'undefined') {
 			obj = this[0];
-		}
-		else
-		{
+		} else {
 			obj = this;
 		}
 
-		var insPos = obj.selectionStart, endPos = obj.selectionEnd;
+		var insPos = obj.selectionStart,
+			endPos = obj.selectionEnd;
 
 		obj.value = obj.value.substring(0, insPos) + text + obj.value.substring(endPos, obj.value.length);
 		obj.selectionStart = insPos + text.length;

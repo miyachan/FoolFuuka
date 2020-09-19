@@ -364,7 +364,7 @@ class Search extends Board
             }
 
             $query = $conn->createQueryBuilder()
-                    ->select('board', 'thread_no', 'post_no', 'COUNT(*) OVER() AS total_results')
+                    ->select('board', 'thread_no', 'post_no')
                     ->from('posts');
 
             $btx = function($value) {
@@ -562,11 +562,12 @@ class Search extends Board
                 $query->orderBy('ts', 'DESC');
             }
 
-            $max_matches = $this->preferences->get('foolfuuka.sphinx.max_matches', 5000);
+            $max_matches = (int)$this->preferences->get('foolfuuka.sphinx.max_matches', 5000);
+            $first_result = (($page * $limit) - $limit) >= $max_matches ? ($max_matches - 1) : ($page * $limit) - $limit;
 
             // set sphinx options
-            $query->setMaxResults($limit)
-                ->setFirstResult((($page * $limit) - $limit) >= $max_matches ? ($max_matches - 1) : ($page * $limit) - $limit);
+            $query->setMaxResults($max_matches - $first_result)
+                ->setFirstResult($first_result);
                 // ->option('max_matches', (int)$max_matches)
                 // ->option('reverse_scan', ($input['order'] === 'asc') ? 0 : 1);
 
@@ -593,13 +594,11 @@ class Search extends Board
             }
 
             // $sphinx_meta = Helper::pairsToAssoc((new Helper($conn))->showMeta()->execute());
-            $this->total_count = 1; //$sphinx_meta['total'];
-            $this->total_found = 1; //$sphinx_meta['total_found'];
-
+            $this->total_count = count($search) + $first_result; //$sphinx_meta['total'];
+            $this->total_found = count($search) + $first_result; //$sphinx_meta['total_found'];
+            $search = array_slice($search, 0, $limit);
 
             foreach ($search as $doc => $result) {
-                $this->total_count = $result['total_results'];
-                $this->total_found = $result['total_results'];
 
                 $board = $this->radix_coll->getByShortname($result['board']);
                 if ($board->getValue('external_database')) {

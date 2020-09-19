@@ -353,6 +353,16 @@ class Boards extends \Foolz\FoolFrame\Controller\Admin
                 }
         ];
 
+        $form['foolfuuka.sphinx.max_matches'] = [
+            'type' => 'input',
+            'label' => 'Max Matches',
+            'placeholder' => 5000,
+            'validation' => [new Trim()],
+            'preferences' => true,
+            'help' => _i('Set the maximum amount of matches the search daemon keeps in RAM for each index and results returned to the client.'),
+            'class' => 'span1'
+        ];
+
         $form['foolfuuka.sphinx.custom_message'] = [
             'type' => 'textarea',
             'label' => 'Custom Error Message',

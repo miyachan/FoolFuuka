@@ -436,9 +436,14 @@ class Board extends Model
         } catch(\OutOfBoundsException $e) {
             switch ($order) {
                 case 'by_post':
+                    $table = "(
+                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = true ORDER BY time_bump DESC LIMIT 10)
+                        UNION
+                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = false ORDER BY time_bump DESC LIMIT 10)
+                    );";
                     $query = $this->dc->qb()
                         ->select('*, thread_num AS unq_thread_num')
-                        ->from($this->radix->getTable('_threads'), 'rt')
+                        ->from($table, 'rt')
                         ->orderBy('rt.sticky', 'DESC')
                         ->addOrderBy('rt.time_bump', 'DESC')
                         ->setMaxResults($per_page)

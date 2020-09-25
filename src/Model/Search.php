@@ -574,7 +574,7 @@ class Search extends Board
             // submit query
              //echo($query->getSql());
             try {
-                $this->profiler->log('Start: SearchQL');
+                $this->profiler->log('Start: SearchQL: '.$query->getSql());
                 $search = $query->execute()->fetchAll();
                 $this->profiler->log('Stop: SearchQL');
             } catch (\Foolz\SphinxQL\Exception\DatabaseException $e) {

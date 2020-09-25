@@ -566,7 +566,7 @@ class Search extends Board
             $first_result = (($page * $limit) - $limit) >= $max_matches ? ($max_matches - 1) : ($page * $limit) - $limit;
 
             // set sphinx options
-            $query->setMaxResults($max_matches - $first_result)
+            $query->setMaxResults($max_matches - $first_result + 1)
                 ->setFirstResult($first_result);
                 // ->option('max_matches', (int)$max_matches)
                 // ->option('reverse_scan', ($input['order'] === 'asc') ? 0 : 1);

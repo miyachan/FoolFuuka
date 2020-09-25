@@ -956,9 +956,10 @@ class Chan extends Common
             $this->builder->getProps()->addTitle('Global Search &raquo; ' . $title);
         }
 
-        if ($board->getTotalResults() > 5000) {
-            $search_title = sprintf(_i('%s <small>Returning only first %d of %d results found.</small>',
-                $title, $this->preferences->get('foolfuuka.sphinx.max_matches', 5000), $board->getTotalResults()));
+        $max_results = $this->preferences->get('foolfuuka.sphinx.max_matches', 5000);
+        if ($board->getTotalResults() > $max_results) {
+            $search_title = sprintf(_i('%s <small>Returning only first %d of %d+ results found.</small>',
+                $title, $max_results, $board->getTotalResults()));
         } else {
             $search_title = sprintf(_i('%s <small>%d results found.</small>', $title, $board->getTotalResults()));
         }

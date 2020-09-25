@@ -472,7 +472,7 @@ class Search extends Board
             if ($input['image'] !== null) {
                 // $query->match('media_hash', '"' . $input['image'] . '"');
                 $query->andWhere('image_hash = :media_hash');
-                $query->setParameter('media_hash', $input['media_hash']);
+                $query->setParameter('media_hash', $input['image']);
             }
 
             if ($input['width'] !== null) {

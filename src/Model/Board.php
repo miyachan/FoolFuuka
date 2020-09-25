@@ -440,7 +440,7 @@ class Board extends Model
                         (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = true ORDER BY time_bump DESC LIMIT 10)
                         UNION
                         (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = false ORDER BY time_bump DESC LIMIT 10)
-                    );";
+                    )";
                     $query = $this->dc->qb()
                         ->select('*, thread_num AS unq_thread_num')
                         ->from($table, 'rt')

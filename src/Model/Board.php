@@ -438,9 +438,9 @@ class Board extends Model
                 case 'by_post':
                     $limit =
                     $table = "(
-                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = true ORDER BY time_bump DESC LIMIT ".intval($per_page)." OFFSET ".intval(($page * $per_page) - $per_page).")
+                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = true ORDER BY time_bump DESC LIMIT ".intval($per_page + (($page * $per_page) - $per_page)).")
                         UNION
-                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = false ORDER BY time_bump DESC LIMIT ".intval($per_page)." OFFSET ".intval(($page * $per_page) - $per_page).")
+                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = false ORDER BY time_bump DESC LIMIT ".intval($per_page + (($page * $per_page) - $per_page)).")
                     )";
                     $query = $this->dc->qb()
                         ->select('*, thread_num AS unq_thread_num')

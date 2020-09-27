@@ -437,9 +437,9 @@ class Board extends Model
             switch ($order) {
                 case 'by_post':
                     $table = "(
-                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = true ORDER BY time_bump DESC LIMIT 10)
+                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = true ORDER BY time_bump DESC)
                         UNION
-                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = false ORDER BY time_bump DESC LIMIT 10)
+                        (SELECT * FROM ".$this->radix->getTable('_threads')." WHERE sticky = false ORDER BY time_bump DESC)
                     )";
                     $query = $this->dc->qb()
                         ->select('*, thread_num AS unq_thread_num')

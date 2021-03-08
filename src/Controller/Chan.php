@@ -277,6 +277,11 @@ class Chan extends Common
         return $this->error($error === null ? _i('Page not found. You can use the search if you were looking for something!') : $error, 404);
     }
 
+    public function action_403($error = null)
+    {
+        return $this->error($error === null ? _i('This request is no longer allowed.') : $error, 403);
+    }
+
     protected function error($error = null, $code = 200)
     {
         $this->builder->createPartial('body', 'error')
@@ -718,6 +723,8 @@ class Chan extends Common
         if ($filename === null) {
             return $this->action_404();
         }
+
+        return $this->action_403();
 
         try {
             $bulk = $this->media_factory->getByFilename($this->radix, $filename);
